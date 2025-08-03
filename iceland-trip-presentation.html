@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="cs">
+<!--
+    Islandská zimní prezentace s hudbou
+    =====================================
+    
+    Pro přidání skladby "Halou - Honeythief":
+    
+    1. Získejte MP3 soubor legálně:
+       - iTunes Store / Apple Music
+       - Amazon Music
+       - Bandcamp: https://halou.bandcamp.com/
+       - YouTube Music (s premium účtem)
+       
+    Info o skladbě:
+    - Halou je projekt Rebeccy Coseboom a Ryana Coseboom
+    - "Honeythief" je z alba "Wiser" (2001)
+    - Atmosférická, ethereální hudba perfektní pro islandské krajiny
+    
+    2. Přejmenujte soubor na "honeythief.mp3"
+    
+    3. Uložte soubor do stejné složky jako tuto HTML stránku
+    
+    4. V kódu níže najděte sekci "Audio element" a upravte název souboru
+    
+    Prezentace automaticky rozpozná, zda je hudba dostupná.
+    Pokud ne, přehraje ambientní zvuk simulující islandskou atmosféru.
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Island 2025-26: Zimní dobrodružství</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Aurora animation background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, 
+                rgba(10,10,10,0.9) 0%, 
+                rgba(0,40,60,0.6) 50%, 
+                rgba(0,80,120,0.3) 100%);
+            z-index: -2;
+        }
+
+        .aurora {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+            animation: aurora 20s ease-in-out infinite;
+            background: radial-gradient(ellipse at top, 
+                transparent 0%, 
+                rgba(0,255,150,0.1) 40%, 
+                rgba(0,150,255,0.2) 60%, 
+                transparent 100%);
+        }
+
+        @keyframes aurora {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+            50% { transform: translateY(-20px) scale(1.1); opacity: 0.5; }
+        }
+
+        /* Snow animation */
+        .snow {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .snowflake {
+            position: absolute;
+            top: -10px;
+            color: rgba(255,255,255,0.8);
+            font-size: 1em;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(100vh); }
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+            position: relative;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+            animation: fadeInUp 1s ease-out;
+            text-shadow: 0 0 30px rgba(0,150,255,0.5);
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: #88ccff;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Music control */
+        .music-control {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .music-control:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
+        }
+
+        .music-icon {
+            font-size: 24px;
+        }
+
+        .music-notification {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0,255,136,0.3);
+            border-radius: 10px;
+            padding: 15px 20px;
+            color: #00ff88;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+            max-width: 300px;
+            box-shadow: 0 5px 20px rgba(0,255,136,0.2);
+        }
+
+        .music-notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Navigation */
+        nav {
+            position: sticky;
+            top: 0;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(20px);
+            z-index: 999;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: #88ccff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #00ff88;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Main content */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .section {
+            margin: 80px 0;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s ease;
+        }
+
+        .section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section h2 {
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            margin-bottom: 30px;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0,255,136,0.5);
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0,150,255,0.3);
+        }
+
+        .card h3 {
+            color: #88ccff;
+            margin-bottom: 15px;
+        }
+
+        .price {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+            margin: 20px 0;
+        }
+
+        .small-price {
+            font-size: 1rem;
+            color: #88ccff;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, transparent, #00ff88, transparent);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin: 40px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            flex: 1;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin: 0 40px;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0,255,136,0.8);
+        }
+
+        /* Tips section */
+        .tips-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .tip {
+            background: linear-gradient(135deg, rgba(0,150,255,0.1), rgba(0,255,136,0.1));
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #00ff88;
+            transition: all 0.3s ease;
+        }
+
+        .tip:hover {
+            transform: translateX(10px);
+        }
+
+        /* CTA */
+        .cta {
+            text-align: center;
+            padding: 80px 20px;
+            background: radial-gradient(ellipse at center, rgba(0,150,255,0.2), transparent);
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 20px 40px;
+            background: linear-gradient(135deg, #0088ff, #00ff88);
+            color: #000;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 30px rgba(0,150,255,0.5);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0,255,136,0.6);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .timeline::before {
+                left: 20px;
+            }
+            
+            .timeline-item {
+                flex-direction: column !important;
+            }
+            
+            .timeline-dot {
+                left: 20px;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading animation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader-text {
+            font-size: 2rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading screen -->
+    <div class="loader" id="loader">
+        <div class="loader-text">Připravuji islandské dobrodružství...</div>
+    </div>
+
+    <!-- Aurora effect -->
+    <div class="aurora"></div>
+    
+    <!-- Snow effect -->
+    <div class="snow" id="snow"></div>
+
+    <!-- Music control -->
+    <div class="music-control" id="musicControl" title="Klikněte pro přehrání hudby - Halou - Honeythief">
+        <span class="music-icon" id="musicIcon">🎵</span>
+    </div>
+    <div class="music-notification" id="musicNotification"></div>
+
+    <!-- Header -->
+    <header>
+        <h1>Island 2025-26</h1>
+        <p class="subtitle">Zimní dobrodružství s polární září během slunečního maxima</p>
+    </header>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-links">
+            <a href="#cena">Cena</a>
+            <a href="#doprava">Doprava</a>
+            <a href="#ubytovani">Ubytování</a>
+            <a href="#aktivity">Aktivity</a>
+            <a href="#terminy">Termíny</a>
+            <a href="#tipy">Tipy</a>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="container">
+        <!-- Price section -->
+        <section class="section" id="cena">
+            <h2>💰 Celkové náklady</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Základní rozpočet</h3>
+                    <p class="price">68 750 Kč</p>
+                    <p class="small-price">na osobu / 14 dní</p>
+                    <ul style="list-style: none; padding: 20px 0;">
+                        <li>✈️ Letenky PLAY Airlines</li>
+                        <li>🚐 Kamper Happy Campers 4x4</li>
+                        <li>🏕️ Kempy po celé trase</li>
+                        <li>🍲 75% vlastní vaření</li>
+                        <li>⛽ Benzín na Ring Road</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Komfortní rozpočet</h3>
+                    <p class="price">77 500 Kč</p>
+                    <p class="small-price">na osobu / 14 dní</p>
+                    <ul style="list-style: none; padding: 20px 0;">
+                        <li>✈️ Flexibilní letenky</li>
+                        <li>🚐 Premium kamper s výbavou</li>
+                        <li>🏕️ Lepší kempy s vyhříváním</li>
+                        <li>🍽️ Občasné restaurace</li>
+                        <li>🛡️ Kompletní pojištění</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transport section -->
+        <section class="section" id="doprava">
+            <h2>✈️ Doprava na Island</h2>
+            <div class="card">
+                <h3>Letecké spojení</h3>
+                <p style="margin: 20px 0;"><strong>PLAY Airlines</strong> - přímý let z Prahy</p>
+                <p class="price">3 950 - 5 700 Kč <span class="small-price">zpáteční letenka</span></p>
+                <p style="margin-top: 20px;">Alternativy: Vídeň nebo Bratislava (s přestupy, ale levnější)</p>
+            </div>
+            
+            <h3 style="margin: 40px 0 20px;">🚐 Pronájem kamperu</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Happy Campers ⭐</h3>
+                    <p class="price">21 000 - 26 250 Kč <span class="small-price">na osobu / 14 dní</span></p>
+                    <ul style="list-style: none; padding: 10px 0;">
+                        <li>✅ 4x4 pohon</li>
+                        <li>✅ Dieselové topení Webasto</li>
+                        <li>✅ Zimní pneumatiky s hroty</li>
+                        <li>✅ Kompletní vybavení</li>
+                        <li>✅ 24/7 podpora</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Cheap Campervans ⚠️</h3>
+                    <p class="price">375 Kč <span class="small-price">za den</span></p>
+                    <ul style="list-style: none; padding: 10px 0;">
+                        <li>❌ Minimální zimní výbava</li>
+                        <li>❌ Bez 4x4</li>
+                        <li>⚠️ Nedoporučuje se v zimě!</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Accommodation section -->
+        <section class="section" id="ubytovani">
+            <h2>🏕️ Ubytování - kempy</h2>
+            <div class="card">
+                <p style="margin-bottom: 20px;"><strong>⚠️ Důležité:</strong> Divoké kempování s kamperem je ZAKÁZANÉ!</p>
+                <p class="price">250 - 375 Kč <span class="small-price">na osobu / noc</span></p>
+            </div>
+            
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>Reykjavík - Laugardalur</h3>
+                        <p>275-375 Kč/noc • Městský kemp s plným zázemím</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>Selfoss</h3>
+                        <p>325 Kč/noc • Základna pro Zlatý okruh</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-content">
+                        <h3>Mývatn</h3>
+                        <p>300 Kč/noc • Geotermální oblast</p>
+                    </div>
+                    <div class="timeline-dot"></div>
+                </div>
+            </div>
+            
+            <p style="text-align: center; margin-top: 40px;">
+                <strong>26 kempů</strong> otevřených celoročně po celé trase Ring Road
+            </p>
+        </section>
+
+        <!-- Activities section -->
+        <section class="section" id="aktivity">
+            <h2>🌟 Aktivity a zážitky</h2>
+            
+            <h3 style="margin: 40px 0 20px;">🌌 Polární záře - Aurora Borealis</h3>
+            <div class="card">
+                <p style="margin-bottom: 20px;"><strong>2025-2026 = Sluneční maximum!</strong></p>
+                <p>Nejlepší podmínky za posledních 10+ let</p>
+                <ul style="margin-top: 20px;">
+                    <li>15-19 hodin tmy denně (listopad-únor)</li>
+                    <li>Optimální místa: Þingvellir, Jökulsárlón, Kirkjufell</li>
+                    <li>Zdarma - jen najděte tmavé místo!</li>
+                </ul>
+            </div>
+            
+            <h3 style="margin: 40px 0 20px;">♨️ Termální prameny ZDARMA</h3>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Reykjadalur</h3>
+                    <p>3,5 km túra k horké řece</p>
+                    <p>Parkování: 62 Kč/hod</p>
+                </div>
+                <div class="card">
+                    <h3>Seljavallalaug</h3>
+                    <p>Historický bazén z roku 1923</p>
+                    <p>Zcela zdarma!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dates section -->
+        <section class="section" id="terminy">
+            <h2>📅 Nejlepší termíny</h2>
+            <div class="card-grid">
+                <div class="card">
+                    <h3>15.11. - 15.12. 2025</h3>
+                    <p style="margin: 20px 0;">Ideální kompromis</p>
+                    <ul>
+                        <li>✅ Slušné podmínky na silnicích</li>
+                        <li>✅ 4-5 hodin denního světla</li>
+                        <li>✅ Dobré šance na polární záři</li>
+                        <li>⚠️ Možný déšť</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>15.2. - 1.3. 2026</h3>
+                    <p style="margin: 20px 0;">Pro lovce polární záře</p>
+                    <ul>
+                        <li>✅ Nejlepší období pro auroru</li>
+                        <li>✅ Jasná obloha</li>
+                        <li>⚠️ Náročnější jízdní podmínky</li>
+                        <li>⚠️ Minimum denního světla</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tips section -->
+        <section class="section" id="tipy">
+            <h2>💡 Tipy na šetření</h2>
+            <div class="tips-grid">
+                <div class="tip">
+                    <strong>🛒 Nakupujte v Bónus</strong> - růžové prase = nejnižší ceny
+                </div>
+                <div class="tip">
+                    <strong>🍳 Vařte 75% jídel</strong> - 63 Kč vs. 650 Kč za jídlo
+                </div>
+                <div class="tip">
+                    <strong>⛽ Tankujte mimo Reykjavík</strong> - ušetříte až 10%
+                </div>
+                <div class="tip">
+                    <strong>🎫 Camping Card</strong> - může ušetřit 65% na kempech
+                </div>
+                <div class="tip">
+                    <strong>🎒 Vlastní vybavení</strong> - půjčení stojí 375-625 Kč/den
+                </div>
+            </div>
+        </section>
+
+        <!-- Safety section -->
+        <section class="section">
+            <h2>⚠️ Bezpečnost</h2>
+            <div class="card">
+                <h3>Důležité kontakty a aplikace</h3>
+                <ul style="margin: 20px 0;">
+                    <li><strong>112</strong> - tísňová linka (funguje i bez signálu)</li>
+                    <li><strong>112 Iceland app</strong> - automaticky posílá GPS polohu</li>
+                    <li><strong>road.is</strong> - aktuální stav silnic</li>
+                    <li><strong>vedur.is</strong> - předpověď počasí</li>
+                    <li><strong>safetravel.is</strong> - bezpečnostní informace</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <!-- CTA -->
+    <section class="cta">
+        <h2 style="margin-bottom: 30px;">Připraveni na dobrodružství života?</h2>
+        <p style="margin-bottom: 40px;">Zažijte Island v jeho nejkrásnější zimní podobě</p>
+        <a href="#" class="cta-button">Začít plánovat cestu</a>
+    </section>
+
+    <!-- Audio element -->
+    <!-- HUDBA: Pro přidání skladby Halou - Honeythief upravte název souboru níže -->
+    <audio id="backgroundMusic" loop>
+        <source src="honeythief.mp3" type="audio/mpeg">
+        <!-- Pokud nemáte soubor, prezentace automaticky použije ambientní zvuk -->
+    </audio>
+
+    <script>
+        // Snow effect
+        function createSnow() {
+            const snow = document.getElementById('snow');
+            const snowflakeCount = 50;
+            
+            for (let i = 0; i < snowflakeCount; i++) {
+                const snowflake = document.createElement('div');
+                snowflake.className = 'snowflake';
+                snowflake.innerHTML = '❄';
+                snowflake.style.left = Math.random() * 100 + '%';
+                snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
+                snowflake.style.opacity = Math.random();
+                snowflake.style.fontSize = Math.random() * 10 + 10 + 'px';
+                snowflake.style.animationDelay = Math.random() * 2 + 's';
+                snow.appendChild(snowflake);
+            }
+        }
+
+        // Music control
+        const musicControl = document.getElementById('musicControl');
+        const musicIcon = document.getElementById('musicIcon');
+        const backgroundMusic = document.getElementById('backgroundMusic');
+        const musicNotification = document.getElementById('musicNotification');
+        let isPlaying = false;
+        let ambientSound = null;
+
+        // Show notification
+        function showNotification(message) {
+            musicNotification.textContent = message;
+            musicNotification.classList.add('show');
+            setTimeout(() => {
+                musicNotification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Try to create AudioContext for ambient sound (backup if no music file)
+        function createAmbientSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(100, audioContext.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(150, audioContext.currentTime + 10);
+                
+                gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.start();
+                
+                // Fade in/out effect
+                setInterval(() => {
+                    gainNode.gain.exponentialRampToValueAtTime(0.08, audioContext.currentTime + 2);
+                    setTimeout(() => {
+                        gainNode.gain.exponentialRampToValueAtTime(0.05, audioContext.currentTime + 2);
+                    }, 2000);
+                }, 4000);
+                
+                return { audioContext, oscillator, gainNode };
+            } catch (e) {
+                console.log('Web Audio API not supported');
+                return null;
+            }
+        }
+
+        musicControl.addEventListener('click', () => {
+            if (isPlaying) {
+                musicIcon.textContent = '🎵';
+                
+                // Pokus o zastavení hudby s fade-out efektem
+                if (backgroundMusic.src && !backgroundMusic.paused) {
+                    // Fade out
+                    let fadeOutInterval = setInterval(() => {
+                        if (backgroundMusic.volume > 0.01) {
+                            backgroundMusic.volume -= 0.01;
+                        } else {
+                            clearInterval(fadeOutInterval);
+                            backgroundMusic.pause();
+                            backgroundMusic.currentTime = 0;
+                            backgroundMusic.volume = 0.3; // Reset volume
+                        }
+                    }, 20);
+                    showNotification('Hudba zastavena');
+                }
+                
+                // Zastavení ambientního zvuku
+                if (ambientSound) {
+                    ambientSound.gainNode.gain.exponentialRampToValueAtTime(0.001, ambientSound.audioContext.currentTime + 1);
+                    setTimeout(() => {
+                        ambientSound.oscillator.stop();
+                        ambientSound = null;
+                    }, 1000);
+                }
+            } else {
+                musicIcon.textContent = '🔇';
+                
+                // Pokus o přehrání hudby s fade-in efektem
+                backgroundMusic.volume = 0;
+                backgroundMusic.play().then(() => {
+                    showNotification('♪ Halou - Honeythief ♪');
+                    // Fade in
+                    let fadeInInterval = setInterval(() => {
+                        if (backgroundMusic.volume < 0.3) {
+                            backgroundMusic.volume += 0.01;
+                        } else {
+                            clearInterval(fadeInInterval);
+                        }
+                    }, 20);
+                }).catch((error) => {
+                    showNotification('Přehrávám ambientní zvuk (hudba nenalezena)');
+                    // Pokud hudba není dostupná, použij ambientní zvuk
+                    ambientSound = createAmbientSound();
+                });
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            });
+        });
+
+        // Remove loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+                createSnow();
+            }, 1500);
+        });
+
+        // Parallax effect on scroll
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelector('.aurora');
+            parallax.style.transform = `translateY(${scrolled * 0.5}px)`;
+        });
+    </script>
+</body>
+</html>
